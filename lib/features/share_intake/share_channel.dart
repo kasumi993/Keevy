@@ -45,6 +45,9 @@ class ShareChannel {
   bool get isSupported =>
       !kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS);
 
+  /// Only iOS needs the boards list (the Android share UI is the Flutter app itself).
+  bool get syncsBoards => isSupported && defaultTargetPlatform == TargetPlatform.iOS;
+
   /// Emits whenever new items arrive while the app is running.
   Stream<List<SharedItem>> get onItems => _controller.stream;
 

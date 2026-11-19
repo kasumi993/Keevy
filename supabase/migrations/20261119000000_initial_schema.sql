@@ -205,6 +205,12 @@ create trigger board_contacts_updated_at before update on public.board_contacts 
 create trigger cards_updated_at          before update on public.cards          for each row execute function public.set_updated_at();
 create trigger tasks_updated_at          before update on public.tasks          for each row execute function public.set_updated_at();
 
+-- ── Data API privileges ─────────────────────────────────────────────────────
+-- Explicit, so the app works even when "automatically expose new tables" is off.
+-- Row access is still decided by RLS below; profiles is narrowed further down.
+grant usage on schema public to anon, authenticated, service_role;
+grant select, insert, update, delete on all tables in schema public to authenticated, service_role;
+
 -- ═══════════════════════════════════════════════════════════════════════════
 -- ACCESS HELPERS (security definer → no RLS recursion)
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -471,6 +477,8 @@ select
     ) p
   ), '[]'::jsonb) as previews
 from public.boards b;
+
+grant select on public.board_overview to authenticated, service_role;
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- RPCs

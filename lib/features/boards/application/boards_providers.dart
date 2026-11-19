@@ -218,6 +218,6 @@ class BoardContentNotifier extends AutoDisposeFamilyAsyncNotifier<BoardContent, 
 }
 
 /// Signed URL for a private image path (cached in the repository).
-final signedImageUrlProvider = FutureProvider.family<String?, String>((ref, path) {
+final signedImageUrlProvider = FutureProvider.autoDispose.family<String?, String>((ref, path) {
   return ref.watch(cardsRepositoryProvider).signedUrl(path);
 });

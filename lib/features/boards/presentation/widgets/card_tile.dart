@@ -65,7 +65,8 @@ class _ImageContent extends StatelessWidget {
       children: [
         AspectRatio(
           aspectRatio: card.aspectRatio ?? 0.8,
-          child: KImage(path: card.imagePath, url: card.signedImageUrl ?? card.imageUrl),
+          // Public viewer: images come pre-signed, never re-sign them as an anonymous user.
+          child: KImage(path: card.signedImageUrl != null ? null : card.imagePath, url: card.signedImageUrl ?? card.imageUrl),
         ),
         if (caption != null && caption.trim().isNotEmpty)
           Padding(

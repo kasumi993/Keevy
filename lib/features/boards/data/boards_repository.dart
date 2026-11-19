@@ -93,6 +93,20 @@ class BoardsRepository {
     return rows.map(Section.fromJson).toList();
   }
 
+  Future<Map<String, List<Section>>> fetchSectionsFor(List<String> boardIds) async {
+    if (boardIds.isEmpty) return const {};
+    final rows = await _db
+        .from('sections')
+        .select()
+        .inFilter('board_id', boardIds)
+        .order('position', ascending: true);
+    final result = <String, List<Section>>{};
+    for (final s in rows.map(Section.fromJson)) {
+      result.putIfAbsent(s.boardId, () => []).add(s);
+    }
+    return result;
+  }
+
   Future<Section> createSection(String boardId, String name, double position) async {
     final row = await _db
         .from('sections')

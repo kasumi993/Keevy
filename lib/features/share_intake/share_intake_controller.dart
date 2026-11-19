@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
 import '../boards/application/boards_providers.dart';
 import '../boards/domain/board.dart';
+import '../boards/domain/section.dart';
 import '../contacts/domain/contact.dart';
 import 'share_channel.dart';
 import 'share_importer.dart';
@@ -112,24 +113,25 @@ class ShareIntakeController extends Notifier<List<SharedItem>> with WidgetsBindi
 
 final shareIntakeProvider = NotifierProvider<ShareIntakeController, List<SharedItem>>(ShareIntakeController.new);
 
-/// Boards + sections handed to the iOS share extension (App Group).
+/// Boards + sections handed to the iOS share extension (App Group). iOS only.
 Future<void> syncBoardsToShareExtension(WidgetRef ref, List<Board> boards) async {
+  if (!ShareChannel.instance.syncsBoards) return;
   final repo = ref.read(boardsRepositoryProvider);
-  final payload = <Map<String, Object?>>[];
-  for (final b in boards.where((b) => !b.isArchived).take(30)) {
-    List<Map<String, Object?>> sections = const [];
-    try {
-      final list = await repo.fetchSections(b.id);
-      sections = [for (final s in list) {'id': s.id, 'name': s.name}];
-    } catch (_) {}
-    payload.add({
-      'id': b.id,
-      'name': b.name,
-      'emoji': b.displayEmoji,
-      'color': '#${(b.color.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}',
-      'mode': b.mode.name,
-      'sections': sections,
-    });
-  }
+  final active = boards.where((b) => !b.isArchived).take(30).toList();
+  Map<String, List<Section>> sections = const {};
+  try {
+    sections = await repo.fetchSectionsFor([for (final b in active) b.id]);
+  } catch (_) {}
+  final payload = [
+    for (final b in active)
+      <String, Object?>{
+        'id': b.id,
+        'name': b.name,
+        'emoji': b.displayEmoji,
+        'color': '#${(b.color.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}',
+        'mode': b.mode.name,
+        'sections': [for (final s in sections[b.id] ?? const <Section>[]) {'id': s.id, 'name': s.name}],
+      },
+  ];
   await ShareChannel.instance.syncBoards(payload);
 }
