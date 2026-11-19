@@ -1,0 +1,67 @@
+# Supabase CLI configuration for Keevy (local dev + `supabase config push`).
+project_id = "keevy"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "10MiB"
+
+[auth]
+enabled = true
+site_url = "https://keevy.app"
+additional_redirect_urls = ["http://localhost:3000", "https://keevy.app"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+otp_length = 6
+otp_expiry = 3600
+max_frequency = "30s"
+
+# Passwordless sign-in with a 6-digit code (no deep links needed on mobile).
+[auth.email.template.magic_link]
+subject = "Ton code Keevy · Your Keevy code"
+content_path = "./supabase/templates/otp.html"
+
+[auth.email.template.confirmation]
+subject = "Bienvenue sur Keevy · Welcome to Keevy"
+content_path = "./supabase/templates/otp.html"
+
+[edge_runtime]
+enabled = true
+policy = "per_worker"
+
+# Functions authenticate requests themselves (works with the new publishable keys).
+[functions.link-preview]
+verify_jwt = false
+
+[functions.shared-board]
+verify_jwt = false
+
+[functions.revenuecat-webhook]
+verify_jwt = false
+
+[functions.delete-account]
+verify_jwt = false
