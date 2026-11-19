@@ -70,7 +70,7 @@ class CardsRepository {
 
   static String newId() => const Uuid().v4();
 
-  /// Uploads a gallery image to card-images/<boardId>/<uuid>.<ext> and returns the path.
+  /// Uploads a gallery image to `card-images/<boardId>/<uuid>.<ext>` and returns the path.
   Future<String> uploadImage({required String boardId, required Uint8List bytes, required String extension}) async {
     final ext = extension.toLowerCase().replaceAll('.', '');
     final safeExt = const {'jpg', 'jpeg', 'png', 'webp', 'gif', 'heic'}.contains(ext) ? ext : 'jpg';

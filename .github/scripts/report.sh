@@ -14,11 +14,13 @@ out="ci-report.md"
     if [ -z "$code" ]; then status="⏭️ skipped"; elif [ "$code" = "0" ]; then status="✅"; else status="❌ (exit $code)"; fi
     echo "**${step}** ${status}"
     if [ -n "$code" ] && [ -f "$file" ]; then
-      if [ "$code" = "0" ]; then n=15; else n=220; fi
+      if [ "$code" = "0" ]; then n=12; else n=200; fi
       if [ "$step" = "analyze" ]; then
-        # Analyzer output: keep every issue line (they are the useful part).
-        body=$(grep -E '^\s*(error|warning|info) •' "$file" | head -n 300)
-        [ -z "$body" ] && body=$(tail -n "$n" "$file")
+        # Errors and warnings first; infos are summarised (deprecations are noisy).
+        errs=$(grep -E '^\s*(error|warning) •' "$file" | head -n 150)
+        infos=$(grep -E '^\s*info •' "$file" | grep -v "package:flutter/material.dart' is deprecated" | head -n 60)
+        ninfo=$(grep -cE '^\s*info •' "$file")
+        body="${errs}"$'\n'"--- infos (${ninfo} total, material.dart deprecation hidden) ---"$'\n'"${infos}"
       else
         body=$(tail -n "$n" "$file")
       fi
@@ -29,6 +31,5 @@ out="ci-report.md"
     echo
   done
 } > "$out"
-# GitHub comment bodies are capped at 65536 chars.
 head -c 60000 "$out" > "${out}.trim"
 gh api "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/comments" -F "body=@${out}.trim" > /dev/null || cat "$out"

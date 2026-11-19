@@ -121,7 +121,7 @@ class LinkDetector {
     return LinkSource.web;
   }
 
-  /// Instagram handle when [url] is a profile (instagram.com/<handle>), else null.
+  /// Instagram handle when [url] is a profile (`instagram.com/<handle>`), else null.
   static String? instagramHandle(String url) {
     if (sourceOf(url) != LinkSource.instagram) return null;
     final segments = Uri.tryParse(url)?.pathSegments.where((s) => s.isNotEmpty).toList() ?? const [];

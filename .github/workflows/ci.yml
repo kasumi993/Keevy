@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
       - id: check
         run: |
-          if [ -d android ] && [ -d ios ] && [ -d web ]; then
+          if [ -d android ] && [ -d ios ] && [ -d web ] && grep -q KeevyShare ios/Runner.xcodeproj/project.pbxproj; then
             echo "created=false" >> "$GITHUB_OUTPUT"
           else
             echo "created=true" >> "$GITHUB_OUTPUT"
@@ -35,16 +35,22 @@ jobs:
           channel: stable
           cache: true
       - if: steps.check.outputs.created == 'true'
-        name: flutter create (platforms only)
+        name: flutter create (platforms only) + iOS share extension target
         run: |
-          had_widget_test=false
-          [ -f test/widget_test.dart ] && had_widget_test=true
-          flutter create --platforms=android,ios,web --org app.keevy --project-name keevy .
-          if [ "$had_widget_test" = false ]; then rm -f test/widget_test.dart; fi
+          if [ ! -d android ] || [ ! -d ios ] || [ ! -d web ]; then
+            had_widget_test=false
+            [ -f test/widget_test.dart ] && had_widget_test=true
+            flutter create --platforms=android,ios,web --org app.keevy --project-name keevy .
+            if [ "$had_widget_test" = false ]; then rm -f test/widget_test.dart; fi
+          fi
+          if ! grep -q KeevyShare ios/Runner.xcodeproj/project.pbxproj; then
+            sudo gem install xcodeproj --no-document
+            ruby ios/scripts/add_share_extension.rb
+          fi
           git config user.name "keevy-ci"
           git config user.email "ci@keevy.app"
           git add android ios web .metadata
-          git commit -m "chore: generate platform folders (flutter create)"
+          git commit -m "chore: generate platform folders / iOS share extension target"
           git push origin "HEAD:${GITHUB_REF_NAME}"
 
   analyze-test:
@@ -84,7 +90,7 @@ jobs:
         if: steps.pub.outputs.code == '0'
         run: |
           set +e
-          flutter build web --release --pwa-strategy=offline-first > web.txt 2>&1
+          flutter build web --release > web.txt 2>&1
           echo "code=$?" >> "$GITHUB_OUTPUT"
       - name: Report
         if: always()
@@ -145,7 +151,7 @@ jobs:
         run: |
           set +e
           flutter pub get > ios.txt 2>&1
-          flutter build ios --debug --no-codesign >> ios.txt 2>&1
+          flutter build ios --simulator --debug >> ios.txt 2>&1
           echo "code=$?" >> "$GITHUB_OUTPUT"
       - name: Report
         if: always()

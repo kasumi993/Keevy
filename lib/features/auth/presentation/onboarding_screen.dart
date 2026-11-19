@@ -212,8 +212,8 @@ class _PlanArt extends StatelessWidget {
         children: [
           const Text('J-128', style: TextStyle(fontFamily: KFonts.serif, fontSize: 28, fontWeight: FontWeight.w700, color: KColors.t1)),
           const SizedBox(height: 4),
-          ClipRRect(
-            borderRadius: const BorderRadius.all(KRadius.full),
+          const ClipRRect(
+            borderRadius: BorderRadius.all(KRadius.full),
             child: LinearProgressIndicator(value: 0.4, minHeight: 6, color: KColors.ok, backgroundColor: KColors.surf2),
           ),
           const SizedBox(height: KSpacing.md),

@@ -40,8 +40,8 @@ class ShareIntakeController extends Notifier<List<SharedItem>> with WidgetsBindi
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
-    if (lifecycle == AppLifecycleState.resumed) unawaited(pull());
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) unawaited(pull());
   }
 
   Future<void> pull() async {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/tokens.dart';
+import '../../../../core/utils/link_detector.dart';
 import '../../../../core/widgets/common.dart';
 import '../../../../core/widgets/k_image.dart';
 import '../../domain/card_item.dart';

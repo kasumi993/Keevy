@@ -10,7 +10,7 @@ import '../../../core/widgets/dialogs.dart';
 import '../../boards/application/boards_providers.dart';
 import '../application/sharing_providers.dart';
 
-/// Collaborative link (/join/<token>): the signed-in user becomes a collaborator.
+/// Collaborative link (`/join/<token>`): the signed-in user becomes a collaborator.
 class JoinBoardScreen extends ConsumerStatefulWidget {
   const JoinBoardScreen({super.key, required this.token});
   final String token;

@@ -11,7 +11,7 @@ class Env {
   static const revenueCatAppleKey = String.fromEnvironment('REVENUECAT_APPLE_KEY');
   static const revenueCatGoogleKey = String.fromEnvironment('REVENUECAT_GOOGLE_KEY');
 
-  /// Public web app (PWA) URL, used to build share links: <webBaseUrl>/s/<token>.
+  /// Public web app (PWA) URL, used to build share links: `<webBaseUrl>/s/<token>`.
   static const webBaseUrl = String.fromEnvironment('WEB_BASE_URL', defaultValue: 'https://keevy.app');
 
   /// RevenueCat entitlement identifier that unlocks Premium.

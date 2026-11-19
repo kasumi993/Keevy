@@ -12,7 +12,7 @@ import '../../boards/presentation/widgets/card_tile.dart';
 import '../application/sharing_providers.dart';
 import '../data/shares_repository.dart';
 
-/// Public read-only board (web viewer at /s/<token>). No account needed.
+/// Public read-only board (web viewer at `/s/<token>`). No account needed.
 class SharedBoardScreen extends ConsumerWidget {
   const SharedBoardScreen({super.key, required this.token});
   final String token;
