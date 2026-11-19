@@ -1,0 +1,8 @@
+{
+  "SUPABASE_URL": "https://YOUR-PROJECT-REF.supabase.co",
+  "SUPABASE_ANON_KEY": "sb_publishable_xxx_or_legacy_anon_key",
+  "WEB_BASE_URL": "https://keevy.app",
+  "REVENUECAT_APPLE_KEY": "appl_xxx",
+  "REVENUECAT_GOOGLE_KEY": "goog_xxx",
+  "REVENUECAT_ENTITLEMENT": "premium"
+}

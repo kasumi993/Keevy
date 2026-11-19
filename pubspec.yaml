@@ -1,0 +1,62 @@
+name: keevy
+description: "Keevy — Save your inspiration. Plan your moments."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+
+  # State
+  flutter_riverpod: ^2.6.1
+
+  # Backend
+  supabase_flutter: ^2.18.0
+
+  # Navigation
+  go_router: ^14.6.2
+
+  # Media & UI
+  cached_network_image: ^3.4.1
+  image_picker: ^1.1.2
+  flutter_staggered_grid_view: ^0.7.0
+
+  # Subscriptions (iOS / Android)
+  purchases_flutter: ^8.4.0
+
+  # Utils
+  url_launcher: ^6.3.1
+  shared_preferences: ^2.3.3
+  crypto: ^3.0.6
+  uuid: ^4.5.1
+  intl: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Lora
+      fonts:
+        - asset: assets/fonts/Lora-Regular.ttf
+        - asset: assets/fonts/Lora-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Lora-Italic.ttf
+          style: italic
+    - family: InstrumentSans
+      fonts:
+        - asset: assets/fonts/InstrumentSans-Regular.ttf
+        - asset: assets/fonts/InstrumentSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/InstrumentSans-Italic.ttf
+          style: italic
