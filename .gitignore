@@ -1,0 +1,49 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+*.iml
+.idea/
+.vscode/
+pubspec.lock.bak
+
+# Android
+android/.gradle/
+android/captures/
+android/local.properties
+android/key.properties
+android/app/upload-keystore.jks
+*.keystore
+*.jks
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Flutter/flutter_export_environment.sh
+ios/Runner/GeneratedPluginRegistrant.*
+**/xcuserdata/
+*.xcuserstate
+
+# Secrets — never commit keys
+.env
+.env.*
+!.env.example
+dart_defines.json
+!dart_defines.example.json
+supabase/.temp/
+supabase/.branches/
+supabase/functions/.env
+
+# OS
+.DS_Store
+Thumbs.db
+*.log

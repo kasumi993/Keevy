@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'claude/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Generates the android/ ios/ web/ platform folders the first time (flutter create)
+  # and commits them back to the branch. No-op once they exist.
+  bootstrap:
+    runs-on: ubuntu-latest
+    outputs:
+      created: ${{ steps.check.outputs.created }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          if [ -d android ] && [ -d ios ] && [ -d web ]; then
+            echo "created=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "created=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.check.outputs.created == 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - if: steps.check.outputs.created == 'true'
+        name: flutter create (platforms only)
+        run: |
+          had_widget_test=false
+          [ -f test/widget_test.dart ] && had_widget_test=true
+          flutter create --platforms=android,ios,web --org app.keevy --project-name keevy .
+          if [ "$had_widget_test" = false ]; then rm -f test/widget_test.dart; fi
+          git config user.name "keevy-ci"
+          git config user.email "ci@keevy.app"
+          git add android ios web .metadata
+          git commit -m "chore: generate platform folders (flutter create)"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+  analyze-test:
+    needs: bootstrap
+    if: needs.bootstrap.outputs.created == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Versions
+        run: flutter --version | tee versions.txt
+      - name: Pub get
+        id: pub
+        run: |
+          set +e
+          flutter pub get > pub.txt 2>&1
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+      - name: Analyze
+        id: analyze
+        if: steps.pub.outputs.code == '0'
+        run: |
+          set +e
+          flutter analyze --no-fatal-infos > analyze.txt 2>&1
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+      - name: Test
+        id: test
+        if: steps.pub.outputs.code == '0'
+        run: |
+          set +e
+          flutter test --reporter expanded > test.txt 2>&1
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+      - name: Build web
+        id: web
+        if: steps.pub.outputs.code == '0'
+        run: |
+          set +e
+          flutter build web --release --pwa-strategy=offline-first > web.txt 2>&1
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+      - name: Report
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          bash .github/scripts/report.sh "analyze-test" \
+            "pub:${{ steps.pub.outputs.code }}:pub.txt" \
+            "analyze:${{ steps.analyze.outputs.code }}:analyze.txt" \
+            "test:${{ steps.test.outputs.code }}:test.txt" \
+            "web:${{ steps.web.outputs.code }}:web.txt"
+      - name: Fail on errors
+        if: steps.pub.outputs.code != '0' || steps.analyze.outputs.code != '0' || steps.test.outputs.code != '0' || steps.web.outputs.code != '0'
+        run: exit 1
+
+  build-android:
+    needs: bootstrap
+    if: needs.bootstrap.outputs.created == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Build APK (debug)
+        id: apk
+        run: |
+          set +e
+          flutter pub get > apk.txt 2>&1
+          flutter build apk --debug >> apk.txt 2>&1
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+      - name: Report
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/report.sh "build-android" "apk:${{ steps.apk.outputs.code }}:apk.txt"
+      - name: Fail on errors
+        if: steps.apk.outputs.code != '0'
+        run: exit 1
+
+  build-ios:
+    needs: bootstrap
+    if: needs.bootstrap.outputs.created == 'false'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Build iOS (no codesign)
+        id: ios
+        run: |
+          set +e
+          flutter pub get > ios.txt 2>&1
+          flutter build ios --debug --no-codesign >> ios.txt 2>&1
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+      - name: Report
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/report.sh "build-ios" "ios:${{ steps.ios.outputs.code }}:ios.txt"
+      - name: Fail on errors
+        if: steps.ios.outputs.code != '0'
+        run: exit 1
