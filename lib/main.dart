@@ -15,7 +15,7 @@ Future<void> main() async {
   await initializeDateFormatting();
 
   if (Env.isConfigured) {
-    await Supabase.initialize(url: Env.supabaseUrl, anonKey: Env.supabaseAnonKey);
+    await Supabase.initialize(url: Env.supabaseUrl, publishableKey: Env.supabaseAnonKey);
   }
   final prefs = await SharedPreferences.getInstance();
 

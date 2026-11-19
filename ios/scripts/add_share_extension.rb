@@ -22,9 +22,9 @@ app = project.targets.find { |t| t.name == 'Runner' } or abort('Runner target no
 
 # ── Runner: share bridge + App Group entitlements ──────────────────────────
 runner_group = project.main_group['Runner'] or abort('Runner group not found')
-plugin_ref = runner_group.files.find { |f| f.path == 'KeevySharePlugin.swift' } || runner_group.new_reference('KeevySharePlugin.swift')
+plugin_ref = runner_group.files.find { |f| f.path.to_s.end_with?('KeevySharePlugin.swift') } || runner_group.new_reference('KeevySharePlugin.swift')
 app.add_file_references([plugin_ref]) unless app.source_build_phase.files_references.include?(plugin_ref)
-runner_group.new_reference('Runner.entitlements') unless runner_group.files.any? { |f| f.path == 'Runner.entitlements' }
+runner_group.new_reference('Runner.entitlements') unless runner_group.files.any? { |f| f.path.to_s.end_with?('Runner.entitlements') }
 app.build_configurations.each do |config|
   config.build_settings['CODE_SIGN_ENTITLEMENTS'] = 'Runner/Runner.entitlements'
 end
@@ -40,7 +40,8 @@ ext.add_file_references([swift_ref])
 
 # Version numbers come from Flutter (FLUTTER_BUILD_NAME / FLUTTER_BUILD_NUMBER).
 flutter_group = project.main_group['Flutter'] or abort('Flutter group not found')
-generated = flutter_group.files.find { |f| f.path == 'Generated.xcconfig' } || flutter_group.new_reference('Generated.xcconfig')
+generated = flutter_group.files.find { |f| f.display_name == 'Generated.xcconfig' || f.path.to_s.end_with?('Generated.xcconfig') } ||
+            flutter_group.new_reference('Generated.xcconfig')
 
 ext.build_configurations.each do |config|
   config.base_configuration_reference = generated
